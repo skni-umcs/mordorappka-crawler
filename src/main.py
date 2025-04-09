@@ -1,4 +1,4 @@
-from util_funcs import get_activity
+from util_funcs import *
 from util_types import MoriaApiConfig, Activity
 
 
@@ -9,11 +9,13 @@ def main():
     
     print("activity_url", activity_url)
     
-    activity = get_activity(activity_url, activity_id)
+    response = fetch_activity_response(activity_url, activity_id)
+    activity = parse_activities(response)
+    
     
     
     for a in activity:
-        print(a.subject)
+        print(a.teacher_array)
         
         
 main()
