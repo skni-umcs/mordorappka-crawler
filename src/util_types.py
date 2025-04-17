@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+## Data classes for Activity plan: -----------------------------------------------------------------------------------------
 @dataclass
 class Event:
     id: int
@@ -49,7 +50,13 @@ class Activity:
             f"🧑‍🏫 {[t.name for t in self.teacher_array]}\n"
             f"📆 {', '.join([f'Day {e.weekday} @ {e.start_time}' for e in self.event_array])}"
         )
-
+# Students: ------------------------------------------------------------------------------------------------------------
+@dataclass
+class Students:
+    id: int
+    name: str
+    
+# Configuration for Moria API: ------------------------------------------------------------------------------------------
 
 @dataclass
 class MoriaApiConfig:
@@ -58,6 +65,7 @@ class MoriaApiConfig:
     list_for_room: str = field(init=False, default = "activity_list_for_room")
     list_for_student: str = field(init=False, default = "activity_list_for_students")
     list_for_teacher: str = field(init=False, default = "activity_list_for_teacher")
+    list_for_students_id : str = field(init=False, default = "students_list")
 
     
     

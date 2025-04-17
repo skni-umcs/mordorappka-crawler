@@ -1,21 +1,19 @@
 from util_funcs import *
-from util_types import MoriaApiConfig, Activity
+from util_types import *
 
 
 def main():
     config = MoriaApiConfig()
     activity_id = 841  # Example ID, replace with actual ID
     activity_url = f"{config.api_url}{config.list_for_student}"
+
     
-    print("activity_url", activity_url)
+    resp = fetch_activity_response(activity_url, activity_id)
+    parsed = parse_activity_response(resp)
     
-    response = fetch_activity_response(activity_url, activity_id)
-    activity = parse_activities(response)
-    
-    
-    
-    for a in activity:
-        print(a.teacher_array)
-        
+    for a in parsed:
+        print(a)
+     
+
         
 main()
