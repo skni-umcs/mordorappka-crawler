@@ -5,7 +5,7 @@ import dacite
 from util_types import *
 
 # Function to fetch the API response
-def fetch_activity_response(url: str, id: int) -> Optional[requests.Response]:
+def fetch_activities(url: str, id: int) -> Optional[requests.Response]:
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json"
@@ -32,7 +32,7 @@ def fetch_activity_response(url: str, id: int) -> Optional[requests.Response]:
         return None
 
 # Function to parse JSON response into a list of Activity objects
-def parse_activity_response(response: requests.Response) -> Optional[List[Activity]]:
+def parse_activities(response: requests.Response) -> Optional[List[Activity]]:
     try:
         data = response.json()
 
@@ -71,10 +71,18 @@ def parse_activity_response(response: requests.Response) -> Optional[List[Activi
         print(f"❌ Error while processing response data: {str(e)}")
         return None
 
+def get_parsed_activity_list(url: str, id: int) -> Optional[List[Activity]]:
+    response = fetch_activities(url, id)
+    if response is None:
+        return None
 
-def fetch_students() -> Optional[requests.Response]:
-    config = MoriaApiConfig()
-    url = f"{config.api_url}{config.list_for_students_id}"
+    activities = parse_activities(response)
+    if activities is None:
+        return None
+
+    return activities
+
+def fetch(url: str) -> Optional[requests.Response]:
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json"
@@ -96,7 +104,7 @@ def fetch_students() -> Optional[requests.Response]:
         return None
     
     
-def parse_students_list(response: requests.Response) -> Optional[List[Students]]:
+def parse_students(response: requests.Response) -> Optional[List[Students]]:
     try:
         data = response.json()
 
@@ -112,10 +120,6 @@ def parse_students_list(response: requests.Response) -> Optional[List[Students]]
 
         students = []
         for student_data in students_data:
-            if not student_data or not isinstance(student_data, dict) or len(student_data) == 0:
-                # Pomijamy puste 
-                continue
-
             try:
                 student = from_dict(
                     data_class=Students,
@@ -136,3 +140,124 @@ def parse_students_list(response: requests.Response) -> Optional[List[Students]]
     except Exception as e:
         print(f"❌ Error while processing response data: {str(e)}")
         return None
+
+
+
+def get_parsed_students() -> Optional[List[Students]]:
+    config = MoriaApiConfig()
+    activity_url = f"{config.api_url}{config.list_for_students_id}"
+    response = fetch(activity_url)
+    if response is None:
+        return None
+
+    students = parse_students(response)
+    if students is None:
+        return None
+
+    #TODO Filter from trash data
+    return students
+
+
+def parse_rooms(response: requests.Response) -> Optional[List[Room]]:
+    try:
+        data = response.json()
+
+        if "result" not in data or "array" not in data["result"]:
+            print("❌ Unexpected API response structure.")
+            return None
+
+        rooms_data = data["result"]["array"]
+
+        if not rooms_data:
+            print("❌ No rooms found.")
+            return None
+
+        rooms = []
+        for room_data in rooms_data:
+            try:
+                room = from_dict(
+                    data_class=Room,
+                    data=room_data,
+                    config=dacite.Config(check_types=False)
+                )
+                rooms.append(room)
+            except Exception as e:
+                print(f"❌ Error processing room: {str(e)}")
+                print(f"Problematic data: {room_data}")
+                continue
+
+        if not rooms:
+            print("❌ All entries were empty or invalid.")
+            return None
+
+        return rooms
+    except Exception as e:
+        print(f"❌ Error while processing response data: {str(e)}")
+        return None
+    
+def get_parsed_rooms() -> Optional[List[Room]]:
+    config = MoriaApiConfig()
+    activity_url = f"{config.api_url}{config.list_for_rooms_id}"
+    response = fetch(activity_url)
+    if response is None:
+        return None
+
+    rooms = parse_rooms(response)
+    if rooms is None:
+        return None
+
+    #TODO Filter from trash data
+    return rooms
+
+
+def parse_teachers(response: requests.Response) -> Optional[List[Teacher]]:
+    try:
+        data = response.json()
+
+        if "result" not in data or "array" not in data["result"]:
+            print("❌ Unexpected API response structure.")
+            return None
+
+        teachers_data = data["result"]["array"]
+
+        if not teachers_data:
+            print("❌ No teachers found.")
+            return None
+
+        teachers = []
+        for teacher_data in teachers_data:
+            try:
+                teacher = from_dict(
+                    data_class=Teacher,
+                    data=teacher_data,
+                    config=dacite.Config(check_types=False)
+                )
+                teachers.append(teacher)
+            except Exception as e:
+                print(f"❌ Error processing teacher: {str(e)}")
+                print(f"Problematic data: {teacher_data}")
+                continue
+
+        if not teachers:
+            print("❌ All entries were empty or invalid.")
+            return None
+
+        return teachers
+    except Exception as e:
+        print(f"❌ Error while processing response data: {str(e)}")
+        return None
+    
+    
+def get_parsed_teachers() -> Optional[List[Teacher]]:
+    config = MoriaApiConfig()
+    activity_url = f"{config.api_url}{config.list_for_teachers_id}"
+    response = fetch(activity_url)
+    if response is None:
+        return None
+
+    teachers = parse_teachers(response)
+    if teachers is None:
+        return None
+
+    #TODO Filter from trash data
+    return teachers

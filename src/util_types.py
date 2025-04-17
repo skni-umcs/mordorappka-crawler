@@ -56,6 +56,23 @@ class Students:
     id: int
     name: str
     
+# Rooms: ------------------------------------------------------------------------------------------------------------
+@dataclass
+class Room:
+    id: int
+    name: str
+    department_id: int
+    quanitiy: int # Literówka ale API tak ma
+# Teachers: ------------------------------------------------------------------------------------------------------------
+
+@dataclass
+class Teacher:
+    id: int
+    degree: str
+    department_id: int
+    first_name: str
+    last_name: str
+    
 # Configuration for Moria API: ------------------------------------------------------------------------------------------
 
 @dataclass
@@ -65,7 +82,10 @@ class MoriaApiConfig:
     list_for_room: str = field(init=False, default = "activity_list_for_room")
     list_for_student: str = field(init=False, default = "activity_list_for_students")
     list_for_teacher: str = field(init=False, default = "activity_list_for_teacher")
+    #Other
     list_for_students_id : str = field(init=False, default = "students_list")
+    list_for_rooms_id : str = field(init=False, default = "room_list")
+    list_for_teachers_id : str = field(init=False, default = "teacher_list")
 
     
     
