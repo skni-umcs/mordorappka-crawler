@@ -52,7 +52,7 @@ class Activity:
         )
 # Students: ------------------------------------------------------------------------------------------------------------
 @dataclass
-class Students:
+class Student:
     id: int
     name: str
     

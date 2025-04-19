@@ -104,7 +104,7 @@ def fetch(url: str) -> Optional[requests.Response]:
         return None
     
     
-def parse_students(response: requests.Response) -> Optional[List[Students]]:
+def parse_students(response: requests.Response) -> Optional[List[Student]]:
     try:
         data = response.json()
 
@@ -122,7 +122,7 @@ def parse_students(response: requests.Response) -> Optional[List[Students]]:
         for student_data in students_data:
             try:
                 student = from_dict(
-                    data_class=Students,
+                    data_class=Student,
                     data=student_data,
                     config=dacite.Config(check_types=False)
                 )
@@ -143,7 +143,7 @@ def parse_students(response: requests.Response) -> Optional[List[Students]]:
 
 
 
-def get_parsed_students() -> Optional[List[Students]]:
+def get_parsed_students() -> Optional[List[Student]]:
     config = MoriaApiConfig()
     activity_url = f"{config.api_url}{config.list_for_students_id}"
     response = fetch(activity_url)
@@ -154,8 +154,8 @@ def get_parsed_students() -> Optional[List[Students]]:
     if students is None:
         return None
 
-    #TODO Filter from trash data
-    return students
+    filtered_students = [s for s in students if s.name]
+    return filtered_students
 
 
 def parse_rooms(response: requests.Response) -> Optional[List[Room]]:
@@ -206,7 +206,6 @@ def get_parsed_rooms() -> Optional[List[Room]]:
     if rooms is None:
         return None
 
-    #TODO Filter from trash data
     return rooms
 
 
@@ -259,5 +258,4 @@ def get_parsed_teachers() -> Optional[List[Teacher]]:
     if teachers is None:
         return None
 
-    #TODO Filter from trash data
     return teachers

@@ -7,12 +7,9 @@ def main():
     activity_id = 841  # Example ID, replace with actual ID
     activity_url = f"{config.api_url}{config.list_for_student}"
 
-    costam = get_parsed_teachers()
-    if costam is None:
-        print("❌ Failed to fetch students.")
-        return
-    for student in costam:
-        print(student)
+    costam = get_parsed_students()
 
+    for a in costam:
+        print(a)
         
 main()
