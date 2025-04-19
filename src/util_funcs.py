@@ -154,7 +154,7 @@ def get_parsed_students() -> Optional[List[Student]]:
     if students is None:
         return None
 
-    filtered_students = [s for s in students if s.name]
+    filtered_students = [s for s in students if s.name and ("I st." in s.name or "II st." in s.name or "I stopnia" in s.name or "II stopnia" in s.name)]
     return filtered_students
 
 
