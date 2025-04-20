@@ -1,15 +1,19 @@
 from util_funcs import *
 from util_types import *
+from database_handler import DBHandler
+from crawler_utils import *
 
 
 def main():
-    config = MoriaApiConfig()
-    activity_id = 840  # Example ID, replace with actual ID
-    activity_url = f"{config.api_url}{config.list_for_student}"
+    
+    url = MoriaApiConfig().api_url + MoriaApiConfig.list_for_student
+    
+    activites = get_parsed_activity_list(url, 841)
 
-    costam = get_parsed_students()
+    for activity in activites:
+        print(activity)    
+    
 
-    for a in costam:
-        print(a)
-        
+    # update_subjects(DBHandler())
+    
 main()

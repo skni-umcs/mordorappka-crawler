@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 class DBHandler:
     connection: None
     
-    def __init__(self, host, port):
+    def __init__(self):
         self.connection = DatabaseConnection()
         
         
@@ -15,7 +15,7 @@ class DBHandler:
         query = """
             INSERT INTO faculties (faculty_id, faculty_name)
             VALUES (%s, %s)
-            ON CONFLICT (id) DO NOTHING;
+            ON CONFLICT DO NOTHING;
         """
         
         
@@ -27,7 +27,7 @@ class DBHandler:
         query = """
             INSERT INTO periods (period_id, winter_term, academic_year)
             VALUES (%s, %s, %s)
-            ON CONFLICT (id) DO NOTHING;
+            ON CONFLICT DO NOTHING;
         """
         
         self.connection.execute(query, (id, winter_term, academic_year))
@@ -39,7 +39,7 @@ class DBHandler:
         query = """
             INSERT INTO majors (major_id, major_name, major_degree, duration_in_sems, faculty_id, active)
             VALUES (%s, %s, %s, %s, %s, %s)
-            ON CONFLICT (id) DO NOTHING;
+            ON CONFLICT DO NOTHING;
         """
         
         self.connection.execute(query, (id, name, degree, duration, faculty_id, active))
@@ -50,7 +50,7 @@ class DBHandler:
         query = """
             INSERT INTO term_groups (term_group_id, year, major_id, period_id)
             VALUES (%s, %s, %s, %s)
-            ON CONFLICT (id) DO NOTHING;
+            ON CONFLICT DO NOTHING;
         """
         
         self.connection.execute(query, (id, year, major_id, period_id))
@@ -60,7 +60,7 @@ class DBHandler:
             query = """
                 INSERT INTO subjects (subject_id, term_group_id, subject_name, period_id)
                 VALUES (%s, %s, %s, %s)
-                ON CONFLICT (id) DO NOTHING;
+                ON CONFLICT DO NOTHING;
             """
             
             self.connection.execute(query, (id, term_group_id, name, period_id))
@@ -71,7 +71,7 @@ class DBHandler:
         query = """
             INSERT INTO rooms (room_id, room_number, faculty_id, room_address, room_capacity)
             VALUES (%s, %s, %s, %s, %s)
-            ON CONFLICT (id) DO NOTHING;
+            ON CONFLICT DO NOTHING;
         """
         
         self.connection.execute(query, (room_id, room_number, faculty_id, room_address, room_capacity))
@@ -81,7 +81,7 @@ class DBHandler:
             query = """
                 INSERT INTO teachers (teacher_id, teacher_name, teacher_degree, faculty_id, active)
                 VALUES (%s, %s, %s, %s, %s)
-                ON CONFLICT (id) DO NOTHING;
+                ON CONFLICT DO NOTHING;
             """
             
             self.connection.execute(query, (teacher_id, teacher_name, teacher_degree, faculty_id, active))
@@ -91,7 +91,35 @@ class DBHandler:
             query = """
                 INSERT INTO classes (class_id, class_type, subject_id, group_id, teacher_id, start_time, end_time, break_duration, weekday, every_two_weeks, room_id, term_group_id)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (id) DO NOTHING;
+                ON CONFLICT DO NOTHING;
             """
             
             self.connection.execute(query, (class_id, class_type, subject_id, group_id, teacher_id, start_time, end_time, break_duration, weekday, every_two_weeks, room_id, term_group_id))
+
+
+    def fetch_from(self, table: str, columns: str, condition: str = None, params: tuple = ()) -> List[tuple]:
+        """
+        Pobiera dane z tabeli.
+
+        Args:
+            table: Nazwa tabeli
+            columns: Kolumny do pobrania
+            condition: Warunek (opcjonalny, np. "major_name = %s")
+            params: Krotka z parametrami do zapytania
+
+        Returns:
+            Lista krotek z danymi
+        """
+        query = f"SELECT {columns} FROM {table}"
+        if condition:
+            query += f" WHERE {condition}"
+
+        self.connection.execute(query, params)
+        return self.connection.fetchall()
+
+
+    def close(self):
+        """
+        Zamyka połączenie z bazą danych.
+        """
+        self.connection.close()

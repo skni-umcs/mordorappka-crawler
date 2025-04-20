@@ -21,7 +21,7 @@ class Student:
     groups: int
 
 @dataclass
-class Teacher:
+class Teacher_activity:
     id: int
     name: str
 
@@ -39,7 +39,7 @@ class Activity:
     event_array: List[Event]
     students_count: int
     students_array: List[Student]
-    teacher_array: List[Teacher]
+    teacher_array: List[Teacher_activity]
     teacher_count: int
     type: Type
     
@@ -72,6 +72,7 @@ class Teacher:
     department_id: int
     first_name: str
     last_name: str
+    
     
 # Configuration for Moria API: ------------------------------------------------------------------------------------------
 
