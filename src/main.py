@@ -8,7 +8,7 @@ def main():
     
     db = DBHandler()
     
-    update_classes(db)
+    update_all(db)
     
     
 main()
