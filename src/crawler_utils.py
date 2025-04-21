@@ -22,22 +22,24 @@ def update_faculties(db: DBHandler):
     
 # Obecnie to zadziała beznadziejnie ale nie wiem jak to zrobić i mi szkoda czasu
 def update_periods(db: DBHandler):
-
     current_year = datetime.now(timezone.utc).year
     is_winter_term = datetime.now(timezone.utc).month in [1, 2, 10, 11, 12]
     academic_year = f"{current_year}/{current_year + 1}" if is_winter_term else f"{current_year - 1}/{current_year}"
-    
+
+    # Sprawdzenie czy taki okres już istnieje
+    existing = db.fetch_where("periods", "academic_year = ? AND winter_term = ?", (academic_year, is_winter_term))
+    if existing:
+        print(f"ℹ️ Okres {academic_year} ({'zimowy' if is_winter_term else 'letni'}) już istnieje.")
+        return
+
     result = db.fetch_from("periods", "MAX(period_id)")
     id = result[0][0] if result and result[0][0] is not None else 0
+    id += 1
 
-    # Obecnie duplikuje okresy wiec lipa
-    periods = [
-        {"id": id + 1, "winter_term": is_winter_term, "academic_year": academic_year},
-    ]
-    
-    for period in periods:
-        db.insert_period(period["id"], period["winter_term"], period["academic_year"])
+    db.insert_period(id, is_winter_term, academic_year)
     db.connection.commit()
+    print(f"✅ Dodano nowy okres: {academic_year} (ID: {id})")
+
     
 
 import re
@@ -48,27 +50,26 @@ def update_majors(db: DBHandler):
     if StudentsInformation is None:
         print("❌ Failed to fetch students information.")
         return
-    
-    majors = []
-    seen_names = set()
 
-    counter = 1
+    existing_majors = db.fetch_from("majors", "name")
+    existing_names = {row[0] for row in existing_majors}
+
+    seen_names = set()
+    majors = []
+
     result = db.fetch_from("majors", "MAX(major_id)")
     id = result[0][0] if result and result[0][0] is not None else 0
-    for student in StudentsInformation:
 
-        # Wywalamy "UWAGA! PLAN MOŻE ULEC ZMIANIE" i numerek z przodu
+    for student in StudentsInformation:
         name = re.sub(r'^\d+\s*', '', student.name)
         name = re.sub(r'UWAGA!?\s*PLAN MOŻE ULEC ZMIANIE', '', name, flags=re.IGNORECASE).strip()
 
-        # Deduplikacja po oczyszczonej nazwie
-        if name in seen_names:
+        if name in seen_names or name in existing_names:
             continue
         seen_names.add(name)
-        
-        id = id + 1
 
-        # Określenie stopnia
+        id += 1
+
         if "II st." in name or "II stopnia" in name:
             degree = "Mgr."
             duration = 2
@@ -79,9 +80,8 @@ def update_majors(db: DBHandler):
             degree = "Dr."
             duration = 3
 
-        duration = duration * 2
+        duration *= 2
 
-        # Faculty ID – tu trzeba by to kiedyś robić lepiej niż ifami
         if any(x in name for x in ["Matematyka", "Fizyka", "Informatyka"]):
             faculty_id = 2
         elif "Geoinformatyka" in name:
@@ -89,15 +89,13 @@ def update_majors(db: DBHandler):
         else:
             faculty_id = 1
 
-        active = True
-
         majors.append({
             "id": id,
             "name": name,
             "degree": degree,
             "duration": duration,
             "faculty_id": faculty_id,
-            "active": active
+            "active": True
         })
 
     for major in majors:
@@ -109,8 +107,10 @@ def update_majors(db: DBHandler):
             major["faculty_id"],
             major["active"]
         )
-        
+
     db.connection.commit()
+    print(f"✅ Dodano {len(majors)} nowych kierunków.")
+
 
     
 def update_term_groups(db: DBHandler):
