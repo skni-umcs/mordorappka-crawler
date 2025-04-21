@@ -170,7 +170,7 @@ def update_subjects(db: DBHandler):
         
         subjects = []
         seen_names = set()
-        id = db.fetch_from("subjects", "MAX(subject_id)")[0][0] if db.fetch_from("subjects", "MAX(subject_id)") else 0
+        #id = db.fetch_from("subjects", "MAX(subject_id)")[0][0] if db.fetch_from("subjects", "MAX(subject_id)") else 0
         for activity in activites:
             
             name = activity.subject
@@ -178,7 +178,8 @@ def update_subjects(db: DBHandler):
                 continue
             seen_names.add(name)
          
-            id = id + 1
+            #id = id + 1
+            id = activity.subject_id
             term_group_id = s.id
             
             
@@ -210,6 +211,29 @@ def update_subjects(db: DBHandler):
             
 
 # update_rooms() jest niemożliwe do zrobienia za duzo wyjątków albo 3 miliony ifów albo zmiana bazy danych
+def update_rooms(db: DBHandler):
+    RoomsInformation = get_parsed_rooms()
+    if RoomsInformation is None:
+        print("❌ Failed to fetch rooms information.")
+        return
+    
+    for room in RoomsInformation:
+        id = room.id
+        room_number = room.name[:10]
+        faculty_id = 1 
+        room_address = "Missing Data"
+        room_capacity = room.quanitiy
+        
+        db.insert_room(
+            id,
+            room_number,
+            faculty_id,
+            room_address,
+            room_capacity
+        )
+    db.connection.commit()
+
+
 
 def update_teachers(db: DBHandler):
     TeachersInformation = get_parsed_teachers()
@@ -254,22 +278,91 @@ def update_classes(db: DBHandler):
         
         
         for activity in activities:
-            
-            for event in activity.event_array:
-                start_time = event.start_time
-                end_time = event.end_time
-                break_duration = event.break_duration
-                weekday = event.weekday
-                every_two_weeks = event.every_two_weeks
-                
-                
+              
             class_id = activity.id
             
             class_type = activity.type.name
             
-            subject_id = db.fetch_from("subjects", "subject_id", "subject_name = %s AND term_group_id = %s", (activity.subject, student.id))
+            term_group_id = student.id
             
-            group_id = 
+            subject_id = activity.subject_id
+            
+            group_id = activity.students_array[0].group
+            
+            teacher_id = activity.teacher_array[0].id
+            
+            from datetime import datetime
+
+            start_time = datetime.strptime(activity.event_array[0].start_time, "%H:%M").time()
+            end_time = datetime.strptime(activity.event_array[0].end_time, "%H:%M").time()
+
+
+            break_duration = (
+            int(activity.event_array[0].break_length)
+            if isinstance(activity.event_array[0].break_length, (int, float))
+            else int(activity.event_array[0].break_length.split(":")[0]) * 60 + 
+            int(activity.event_array[0].break_length.split(":")[1]))
+
+            weekday = activity.event_array[0].weekday
+            
+            every_two_weeks = False
+            
+            room_id = activity.event_array[0].room_id
+            
+            print("🔥 INSERTING:")
+            print("class_id:", class_id)
+            print("class_type:", class_type)
+            print("subject_id:", subject_id)
+            print("group_id:", group_id)
+            print("teacher_id:", teacher_id)
+            print("start_time:", start_time)
+            print("end_time:", end_time)
+            print("break_duration:", break_duration)
+            print("weekday:", weekday)
+            print("every_two_weeks:", every_two_weeks)
+            print("room_id:", room_id)
+            print("term_group_id:", term_group_id)
+
+            
+            try:
+                db.insert_class(
+                    class_id,
+                    class_type,
+                    subject_id,
+                    group_id,
+                    teacher_id,
+                    start_time,
+                    end_time,
+                    break_duration,
+                    weekday,
+                    every_two_weeks,
+                    room_id,
+                    term_group_id
+                )
+                db.connection.commit()
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                print(f"❌ Error inserting class: {e}")
+                db.connection.rollback()  # Rollback the transaction on error
+                continue
+        
+def update_all(db: DBHandler):
+    update_faculties(db)
+    update_periods(db)
+    update_majors(db)
+    update_term_groups(db)
+    update_subjects(db)
+    update_rooms(db)
+    update_teachers(db)
+    update_classes(db)
+            
+            
+            
+            
+            
+            
+            
             
             
             

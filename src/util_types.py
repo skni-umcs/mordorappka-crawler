@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
+from datetime import datetime, timedelta
 
 ## Data classes for Activity plan: -----------------------------------------------------------------------------------------
 @dataclass
@@ -7,8 +8,8 @@ class Event:
     id: int
     weekday: int
     start_time: str
-    length: str
-    break_length: str
+    length: int
+    break_length: int
     end_time: str
     room_id: int
     room: str

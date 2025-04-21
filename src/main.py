@@ -6,14 +6,9 @@ from crawler_utils import *
 
 def main():
     
-    url = MoriaApiConfig().api_url + MoriaApiConfig.list_for_student
+    db = DBHandler()
     
-    activites = get_parsed_activity_list(url, 841)
-
-    for activity in activites:
-        print(activity)    
+    update_all(db)
     
-
-    # update_subjects(DBHandler())
-    
+    #TODO: Update indexing on subject_id in update_subjects and update_classes because moria indexing sucks
 main()
