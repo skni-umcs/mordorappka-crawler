@@ -27,8 +27,9 @@ def update_periods(db: DBHandler):
     is_winter_term = datetime.now(timezone.utc).month in [1, 2, 10, 11, 12]
     academic_year = f"{current_year}/{current_year + 1}" if is_winter_term else f"{current_year - 1}/{current_year}"
     
-    id = db.fetch_from("periods", "MAX(period_id)")[0][0] if db.fetch_from("periods", "MAX(period_id)") else 0
-    
+    result = db.fetch_from("periods", "MAX(period_id)")
+    id = result[0][0] if result and result[0][0] is not None else 0
+
     periods = [
         {"id": id + 1, "winter_term": is_winter_term, "academic_year": academic_year},
     ]
@@ -51,7 +52,8 @@ def update_majors(db: DBHandler):
     seen_names = set()
 
     counter = 1
-    id = db.fetch_from("majors", "MAX(major_id)")[0][0] if db.fetch_from("majors", "MAX(major_id)") else 0
+    result = db.fetch_from("majors", "MAX(major_id)")
+    id = result[0][0] if result and result[0][0] is not None else 0
     for student in StudentsInformation:
 
         # Wywalamy "UWAGA! PLAN MOŻE ULEC ZMIANIE" i numerek z przodu
@@ -170,7 +172,8 @@ def update_subjects(db: DBHandler):
         
         subjects = []
         seen_names = set()
-        id = db.fetch_from("subjects", "MAX(subject_id)")[0][0] if db.fetch_from("subjects", "MAX(subject_id)") else 0
+        result = db.fetch_from("subjects", "MAX(subject_id)")
+        id = result[0][0] if result and result[0][0] is not None else 0
         for activity in activites:
             
             name = activity.subject
