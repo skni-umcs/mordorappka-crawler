@@ -8,7 +8,7 @@ def main():
     
     db = DBHandler()
     
-    update_all(db)
+    update_classes(db)
     
-    #TODO: Update indexing on subject_id in update_subjects and update_classes because moria indexing sucks
+    
 main()

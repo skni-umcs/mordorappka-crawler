@@ -170,7 +170,7 @@ def update_subjects(db: DBHandler):
         
         subjects = []
         seen_names = set()
-        #id = db.fetch_from("subjects", "MAX(subject_id)")[0][0] if db.fetch_from("subjects", "MAX(subject_id)") else 0
+        id = db.fetch_from("subjects", "MAX(subject_id)")[0][0] if db.fetch_from("subjects", "MAX(subject_id)") else 0
         for activity in activites:
             
             name = activity.subject
@@ -178,8 +178,7 @@ def update_subjects(db: DBHandler):
                 continue
             seen_names.add(name)
          
-            #id = id + 1
-            id = activity.subject_id
+            id = id + 1
             term_group_id = s.id
             
             
@@ -285,7 +284,12 @@ def update_classes(db: DBHandler):
             
             term_group_id = student.id
             
-            subject_id = activity.subject_id
+            
+            # subject_id = activity.subject_id
+            
+            subject = db.fetch_from("subjects", "subject_id", "subject_name = %s AND term_group_id = %s", (activity.subject, term_group_id))
+            
+            subject_id = subject[0][0] if subject else None
             
             group_id = activity.students_array[0].group
             
@@ -346,6 +350,9 @@ def update_classes(db: DBHandler):
                 print(f"❌ Error inserting class: {e}")
                 db.connection.rollback()  # Rollback the transaction on error
                 continue
+        
+        
+        
         
 def update_all(db: DBHandler):
     update_faculties(db)
