@@ -30,6 +30,7 @@ def update_periods(db: DBHandler):
     result = db.fetch_from("periods", "MAX(period_id)")
     id = result[0][0] if result and result[0][0] is not None else 0
 
+    # Obecnie duplikuje okresy wiec lipa
     periods = [
         {"id": id + 1, "winter_term": is_winter_term, "academic_year": academic_year},
     ]
@@ -41,7 +42,7 @@ def update_periods(db: DBHandler):
 
 import re
 
-
+# W tej funkcji również może wystąpic duplikacja do poprawienia
 def update_majors(db: DBHandler):
     StudentsInformation = get_parsed_students()
     if StudentsInformation is None:
