@@ -116,10 +116,24 @@ class DBHandler:
 
         self.connection.execute(query, params)
         return self.connection.fetchall()
+    
+    
+    def clear_all_data(self):
 
+        tables = [
+        "classes",
+        "subjects",
+        "term_groups",
+        "majors",
+        "teachers",
+        "rooms",
+        "periods",
+        "faculties"
+        ]
 
-    def close(self):
-        """
-        Zamyka połączenie z bazą danych.
-        """
-        self.connection.close()
+        for table in tables:
+            print(f"🧼 Czyszczę tabelę: {table}")
+            self.connection.execute(f"DELETE FROM {table};")
+
+            self.connection.commit()
+            print("✅ Baza wyczyszczona do zera.")

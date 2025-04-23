@@ -27,7 +27,7 @@ def update_periods(db: DBHandler):
     academic_year = f"{current_year}/{current_year + 1}" if is_winter_term else f"{current_year - 1}/{current_year}"
 
     # Sprawdzenie czy taki okres już istnieje
-    existing = db.fetch_where("periods", "academic_year = ? AND winter_term = ?", (academic_year, is_winter_term))
+    existing = db.fetch_from("periods", "*", "academic_year = %s AND winter_term = %s", (academic_year, is_winter_term))
     if existing:
         print(f"ℹ️ Okres {academic_year} ({'zimowy' if is_winter_term else 'letni'}) już istnieje.")
         return
@@ -51,7 +51,7 @@ def update_majors(db: DBHandler):
         print("❌ Failed to fetch students information.")
         return
 
-    existing_majors = db.fetch_from("majors", "name")
+    existing_majors = db.fetch_from("majors", "major_name")
     existing_names = {row[0] for row in existing_majors}
 
     seen_names = set()

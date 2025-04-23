@@ -11,4 +11,5 @@ def main():
     update_all(db)
     
     
+    
 main()
